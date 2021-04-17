@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as d3 from "d3";
-  import { lineIntersectsLine, sharePoint, Point, Line } from "geometric";
+  import { lineIntersectsLine, sharePoint, angleBisector, isReflex, Vector, Point, Line, Segment } from "geometric";
   import { polygonActive, errors, reset } from "./store";
-  import { straightSkeleton } from "./straightSkeleton";
+  import { MotorcycleGraph } from "./MotorcycleGraph";
 
   let drawing = false, basePoint;
   let points = [], g;
@@ -22,12 +22,18 @@
     $reset = false;
   }
 
-  function checkIntersections(points) {
+  function createLines(points) {
     let lines = [];
 
     for (let k = 0; k < points.length-1; k += 1) {
       lines.push(new Line(Point.fromArray(points[k]), Point.fromArray(points[k+1])));
     }
+
+    return lines;
+  }
+
+  function checkIntersections(points) {
+    let lines = createLines(points);
 
     for (let aa of lines) {
       for (let bb of lines) {
@@ -36,6 +42,49 @@
         }
       }
     }
+  }
+
+  function getWidthHeight() {
+    let positionInfo = document.querySelector(".polygon").getBoundingClientRect();
+    return [positionInfo.width, positionInfo.height];
+  }
+
+  function drawAngleBisectorOfReflexNodes(points) {
+    if (points.length < 3) {
+      return;
+    }
+
+    const size = points.length,
+          segA = new Segment(Point.fromArray(points[size-3]), Point.fromArray(points[size-2])),
+          segB = new Segment(Point.fromArray(points[size-2]), Point.fromArray(points[size-1]));
+
+    if (!isReflex(segA, segB)) {
+      return;
+    }
+
+    let bisector = angleBisector(segA, segB).invert();
+    let [width, height] = getWidthHeight();
+    let scaleFactor = Math.sqrt(width*width + height*height) / bisector.norm();
+
+    bisector.scale(scaleFactor);
+
+    let middleNode = Point.fromArray(points[size-2]);
+    let target = middleNode.add(bisector);
+
+    let g = svg.append("g").attr("class", "bisector");
+
+    appendLine(g, [middleNode.x, middleNode.y], [target.x, target.y]);
+  }
+
+  function drawMotorcycleGraph(points) {
+    const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
+          motorcycleGraph = new MotorcycleGraph(points, positionInfo),
+          segments = motorcycleGraph.getSegments();
+
+    let g = svg.append("g").attr("class", "bisector");
+
+    for (const segment of segments)
+      appendLine(g, segment.s.toArray(), segment.t.toArray());
   }
 
   function actOnClick(event) {
@@ -54,8 +103,13 @@
 
     points.push(basePoint);
 
-    if (points.length > 3)
+    if (points.length > 3) {
       checkIntersections(points);
+    }
+
+    // if (points.length > 2) {
+    //   drawAngleBisectorOfReflexNodes(points);
+    // }
 
     g.select("polyline").remove();
 
@@ -108,7 +162,7 @@
 
     polygonActive.set(points);
 
-    straightSkeleton([...points]);
+    drawMotorcycleGraph(points.map(o => Point.fromArray(o)));
 
     points = [];
     drawing = false;

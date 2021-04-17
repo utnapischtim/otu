@@ -44,6 +44,10 @@ export default {
     file: "public/build/bundle.js"
   },
   plugins: [
+    typescript({
+      sourceMap: !production,
+      inlineSources: !production
+    }),
     svelte({
       preprocess: sveltePreprocess({
         sourceMap: false,
@@ -68,10 +72,7 @@ export default {
       dedupe: ["svelte"]
     }),
     commonjs(),
-    typescript({
-      sourceMap: !production,
-      inlineSources: !production
-    }),
+    
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
