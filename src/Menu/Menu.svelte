@@ -4,7 +4,7 @@
   import LoadPolygon from "./LoadPolygon.svelte";
   import Errors from "./Errors.svelte";
   import Reset from "./Reset.svelte";
-  import { engines } from "../store";
+  import { engines, polygons, polygonActive } from "../store";
 </script>
 
 <style>
@@ -16,7 +16,7 @@
 
 <div class="menu">
   <SelectEngine bind:engines={$engines} />
-  <SavePolygon />
+  <SavePolygon bind:polygonActive={$polygonActive} />
   <LoadPolygon polygons />
   <Reset />
   <Errors />

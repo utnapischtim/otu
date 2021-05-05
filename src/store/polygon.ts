@@ -1,12 +1,13 @@
 import { writable } from 'svelte/store';
+//import type * as geom from "geometric";
 
 function createPolygonStore() {
-  const { subscribe, set, update } = writable([]);
+  const { subscribe, set/*, update*/ } = writable([]);
 
   return {
     subscribe,
-    set,
-    add: (polygon) => update(list => [...list, polygon])
+    set// ,
+    // add: (polygon) => update(list => [...list, polygon])
   }
 }
 

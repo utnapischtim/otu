@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset } from "./store";
+  import { polygonActive, errors, reset, load } from "./store";
   import { MotorcycleGraph } from "./MotorcycleGraph";
 
   let drawing = false, basePoint;
@@ -20,6 +20,12 @@
     points = [];
     svg.selectAll("g").remove();
     $reset = false;
+  }
+
+  $: if ($load) {
+    drawPolygon($polygonActive);
+    middleLayerDrawMotorcycleGraph($polygonActive);
+    load.set(false);
   }
 
   function createLines(points) {
@@ -76,13 +82,26 @@
     appendLine(g, [middleNode.x, middleNode.y], [target.x, target.y]);
   }
 
+  function middleLayerDrawMotorcycleGraph(points) {
+    // this functions purpose is to convert from [x,y] to geom.Point's and to
+    // verify that .polygon exists
+    if (document.querySelector(".polygon") != null && points.length > 0) {
+      drawMotorcycleGraph(points.map(o => geom.Point.fromArray(o)));
+    }
+  }
+
   function drawMotorcycleGraph(points) {
     const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
           motorcycleGraph = new MotorcycleGraph(points, positionInfo),
           segments = motorcycleGraph.getSegments();
 
-    let g = svg.append("g").attr("class", "bisector");
-
+    let g;
+    if (svg.select("g.bisector").empty()) {
+      g = svg.append("g").attr("class", "bisector");
+    } else {
+      g = svg.select("g.bisector");
+      g.selectAll("line").remove();
+    }
     for (const segment of segments)
       appendLine(g, segment.s.toArray(), segment.t.toArray());
   }
@@ -144,14 +163,18 @@
 
     for (let circleOld of circles._groups[0]) {
       const circle = d3.select(circleOld);
-      newPoints.push([circle.attr("cx"), circle.attr("cy")]);
+      newPoints.push([parseInt(circle.attr("cx")), parseInt(circle.attr("cy"))]);
     }
 
     poly.attr("points", newPoints);
+
+    polygonActive.set(newPoints);
+
+    middleLayerDrawMotorcycleGraph(newPoints);
   }
 
-  function closePolygon() {
-    svg.select("g.drawPoly").remove();
+  function drawPolygon(points) {
+    svg.select("g").remove();
 
     let g = svg.append("g");
 
@@ -159,14 +182,19 @@
 
     for (let point of points)
       appendCircle(g, point, {movable: true});
+  }
+
+
+  function closePolygon() {
+    svg.select("g.drawPoly").remove();
 
     polygonActive.set(points);
 
-    drawMotorcycleGraph(points.map(o => Point.fromArray(o)));
+    drawPolygon(points);
+    middleLayerDrawMotorcycleGraph(points);
 
     points = [];
     drawing = false;
-
   }
 
   function getRandomColor() {
