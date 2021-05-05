@@ -1,14 +1,14 @@
-import { Segment, Point, close, isReflex, angleBisector, intersection, sharePoint, distance, segmentAngleSegment, angleToRadians } from "geometric";
+import * as geom from "geometric";
 import { MotorcycleSegment } from "./MotorcycleSegment";
 import { MotorcyclePoint } from "./MotorcyclePoint";
 
 export class MotorcycleGraph {
-  public polygon: Array<Segment>;
+  public polygon: geom.Segment[];
   public positionInfo: any;
-  public motorcycleSegments: Array<MotorcycleSegment> = [];
-  public intersectionPoints: Array<MotorcyclePoint> = [];
+  public motorcycleSegments: MotorcycleSegment[] = [];
+  public intersectionPoints: MotorcyclePoint[] = [];
 
-  public constructor(points: Array<Point>, positionInfo: any) {
+  public constructor(points: geom.IPoint[], positionInfo: any) {
     this.polygon = this.createPolygon(points);
     this.positionInfo = positionInfo;
     this.calculateMotorcycleGraph();
@@ -27,12 +27,12 @@ export class MotorcycleGraph {
   }
 
 
-  private createPolygon(points: Array<Point>) {
-    let polygon: Array<Segment> = [];
-    points = close(points);
+  private createPolygon(points: geom.IPoint[]) {
+    let polygon: geom.ISegment[] = [];
+    points = geom.close(points);
 
     for (let k = 0; k < points.length-1; k += 1) {
-      polygon.push(new Segment(points[k], points[k+1]));
+      polygon.push(new geom.Segment(points[k], points[k+1]));
     }
     return polygon;
   }
@@ -41,8 +41,8 @@ export class MotorcycleGraph {
     return [this.positionInfo.width, this.positionInfo.height];
   }
 
-  private motorcycle(segA: Segment, segB: Segment): Segment {
-    let bisector = angleBisector(segA, segB).invert();
+  private motorcycle(segA: geom.ISegment, segB: geom.ISegment): MotorcycleSegment {
+    let bisector = geom.angleBisector(segA, segB).invert();
     let [width, height] = this.getWidthHeight();
     let scaleFactor = Math.sqrt(width*width + height*height) / bisector.norm();
 
@@ -51,7 +51,7 @@ export class MotorcycleGraph {
     let start = segA.t.clone();
     let target = start.add(bisector);
 
-    const alpha = 2*Math.PI - angleToRadians(segmentAngleSegment(segA, segB)),
+    const alpha = 2*Math.PI - geom.angleToRadians(geom.segmentAngleSegment(segA, segB)),
           velocity = 1 / Math.sin(alpha/2);
 
     return new MotorcycleSegment(start, target, velocity);
@@ -65,15 +65,15 @@ export class MotorcycleGraph {
 
   private calculateMotorcycleSegments(): void {
     for (let i = 0; i < this.polygon.length-2; i += 1) {
-      if (isReflex(this.polygon[i], this.polygon[i+1])) {
+      if (geom.isReflex(this.polygon[i], this.polygon[i+1])) {
         this.motorcycleSegments.push(this.motorcycle(this.polygon[i], this.polygon[i+1]));
       }
     }
   }
 
   private calculateMotorcycleSegmentIntersections(): void {
-    const time = (s, e, v) => {
-      const dist = distance(s, e);
+    const time = (s: geom.IPoint, e: geom.IPoint, v: number) => {
+      const dist = geom.distance(s, e);
       return dist / v;
     }
 
@@ -81,7 +81,7 @@ export class MotorcycleGraph {
       for (const segB of this.motorcycleSegments) {
         if (segA.notEqual(segB)) {
           try {
-            const inter: Point = intersection(segA, segB),
+            const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB),
                   lostPoint: MotorcyclePoint = MotorcyclePoint.fromPoint(inter);
 
             const segATime: number = time(segA.s, inter, segA.velocity),
@@ -112,9 +112,9 @@ export class MotorcycleGraph {
 
     for (const segA of this.motorcycleSegments) {
       for (const segB of this.polygon) {
-        if (!sharePoint(segA, segB)) {
+        if (!geom.sharePoint(segA, segB)) {
           try {
-            const inter = intersection(segA, segB);
+            const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB);
             segA.t = inter;
           } catch (e) {
             // console.log(e);

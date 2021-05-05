@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as d3 from "d3";
-  import { lineIntersectsLine, sharePoint, angleBisector, isReflex, Vector, Point, Line, Segment } from "geometric";
+  import * as geom from "geometric";
   import { polygonActive, errors, reset } from "./store";
   import { MotorcycleGraph } from "./MotorcycleGraph";
 
@@ -26,7 +26,7 @@
     let lines = [];
 
     for (let k = 0; k < points.length-1; k += 1) {
-      lines.push(new Line(Point.fromArray(points[k]), Point.fromArray(points[k+1])));
+      lines.push(new geom.Line(geom.Point.fromArray(points[k]), geom.Point.fromArray(points[k+1])));
     }
 
     return lines;
@@ -37,7 +37,7 @@
 
     for (let aa of lines) {
       for (let bb of lines) {
-        if (!sharePoint(aa, bb) && lineIntersectsLine(aa, bb)) {
+        if (!geom.sharePoint(aa, bb) && geom.lineIntersectsLine(aa, bb)) {
           $errors.noSimplePolygon = true;
         }
       }
@@ -55,20 +55,20 @@
     }
 
     const size = points.length,
-          segA = new Segment(Point.fromArray(points[size-3]), Point.fromArray(points[size-2])),
-          segB = new Segment(Point.fromArray(points[size-2]), Point.fromArray(points[size-1]));
+          segA = new geom.Segment(geom.Point.fromArray(points[size-3]), geom.Point.fromArray(points[size-2])),
+          segB = new geom.Segment(geom.Point.fromArray(points[size-2]), geom.Point.fromArray(points[size-1]));
 
-    if (!isReflex(segA, segB)) {
+    if (!geom.isReflex(segA, segB)) {
       return;
     }
 
-    let bisector = angleBisector(segA, segB).invert();
+    let bisector = geom.angleBisector(segA, segB).invert();
     let [width, height] = getWidthHeight();
     let scaleFactor = Math.sqrt(width*width + height*height) / bisector.norm();
 
     bisector.scale(scaleFactor);
 
-    let middleNode = Point.fromArray(points[size-2]);
+    let middleNode = geom.Point.fromArray(points[size-2]);
     let target = middleNode.add(bisector);
 
     let g = svg.append("g").attr("class", "bisector");
