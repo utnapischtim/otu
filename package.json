@@ -8,17 +8,24 @@
     "dev": "rollup -c -w",
     "start": "sirv public",
     "fmt": "prettier -l --write .",
-    "svelte-check": "svelte-check"
+    "svelte-check": "svelte-check",
+    "test": "jest"
   },
   "devDependencies": {
+    "@babel/core": "^7.13.15",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/preset-typescript": "^7.13.0",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@rollup/plugin-typescript": "^8.2.1",
     "@tsconfig/svelte": "^1.0.0",
+    "@types/jest": "^26.0.22",
     "@wessberg/rollup-plugin-ts": "github:wessberg/rollup-plugin-ts",
     "autoprefixer": "^10.2.5",
+    "babel-jest": "^26.6.3",
     "d3": "^6.6.2",
     "geometric": "file:../github/utnapischtim/geometric",
+    "jest": "^26.6.3",
     "postcss": "^8.2.9",
     "postcss-load-config": "^3.0.1",
     "prettier": "^2.2.1",
@@ -33,10 +40,12 @@
     "svelte-check": "^1.3.0",
     "svelte-preprocess": "^4.7.0",
     "tailwindcss": "^2.0.4",
+    "ts-jest": "^26.5.5",
     "tslib": "^2.1.0",
     "typescript": "^4.2.3"
   },
   "dependencies": {
+    "file-saver": "^2.0.5",
     "pnpm": "^5.18.9",
     "rimraf": "^3.0.2",
     "sirv-cli": "^1.0.0"
