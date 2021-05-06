@@ -3,7 +3,7 @@
   import * as d3 from "d3";
   import * as geom from "geometric";
   import { polygonActive, errors, reset, load } from "../store";
-  import { MotorcycleGraph } from "../MotorcycleGraph";
+  import { MotorcycleGraph } from "../Motorcycle";
 
   let drawing = false, basePoint;
   let points = [], g;
