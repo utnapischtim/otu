@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { PolygonList } from "./Polygon";
   import Menu from "./Menu";
-  import Polygon from "./Polygon.svelte";
 </Script>
 
-<Polygon />
+<PolygonList />
 <Menu />
 

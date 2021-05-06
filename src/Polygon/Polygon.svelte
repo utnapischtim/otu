@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load } from "./store";
-  import { MotorcycleGraph } from "./MotorcycleGraph";
+  import { polygonActive, errors, reset, load } from "../store";
+  import { MotorcycleGraph } from "../MotorcycleGraph";
 
   let drawing = false, basePoint;
   let points = [], g;
@@ -254,10 +254,8 @@
 
 <style>
   .polygon {
-    border: 1px solid black;
-    width: 80%;
-    height: 700px;
-    float: left;
+    height: 90%;
+    width: 100%;
   }
 </style>
 

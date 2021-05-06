@@ -10,7 +10,7 @@
 <style>
   .menu {
     float: right;
-    width: 19%;
+    width: 10%;
   }
 </style>
 
