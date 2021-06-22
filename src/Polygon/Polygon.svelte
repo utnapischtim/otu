@@ -107,6 +107,10 @@
   }
 
   function actOnClick(event) {
+    if (!svg.select("g.activePolygon").empty()) {
+      return;
+    }
+
     drawing = true;
 
     basePoint = d3.pointer(event);
@@ -174,9 +178,9 @@
   }
 
   function drawPolygon(points) {
-    svg.select("g").remove();
+    svg.select("g.activePolygon").remove();
 
-    let g = svg.append("g");
+    let g = svg.append("g").attr("class", "activePolygon");
 
     appendPolygon(g, points);
 
