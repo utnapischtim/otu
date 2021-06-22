@@ -64,10 +64,16 @@ export class MotorcycleGraph {
   }
 
   private calculateMotorcycleSegments(): void {
-    for (let i = 0; i < this.polygon.length-2; i += 1) {
+    const size = this.polygon.length;
+
+    for (let i = 0; i < size-1; i += 1) {
       if (geom.isReflex(this.polygon[i], this.polygon[i+1])) {
         this.motorcycleSegments.push(this.motorcycle(this.polygon[i], this.polygon[i+1]));
       }
+    }
+
+    if (geom.isReflex(this.polygon[size - 1], this.polygon[0])) {
+      this.motorcycleSegments.push(this.motorcycle(this.polygon[size - 1], this.polygon[0]));
     }
   }
 
