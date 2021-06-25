@@ -5,6 +5,9 @@
   import { polygonActive, errors, reset, load } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
+  export let motorcycles = [];
+  export let motorcyclesCustomList = [];
+
   let drawing = false, basePoint;
   let points = [], g;
   let svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
@@ -24,8 +27,13 @@
 
   $: if ($load) {
     drawPolygon($polygonActive);
-    middleLayerDrawMotorcycleGraph($polygonActive);
+    middleLayerDrawMotorcycles($polygonActive);
     load.set(false);
+  }
+
+  $: {
+    middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
+    drawMotorcycles(motorcycles);
   }
 
   function createLines(points) {
@@ -82,28 +90,58 @@
     appendLine(g, [middleNode.x, middleNode.y], [target.x, target.y]);
   }
 
-  function middleLayerDrawMotorcycleGraph(points) {
+  function middleLayerDrawMotorcycles(points) {
     // this functions purpose is to convert from [x,y] to geom.Point's and to
     // verify that .polygon exists
-    if (document.querySelector(".polygon") != null && points.length > 0) {
-      drawMotorcycleGraph(points.map(o => geom.Point.fromArray(o)));
+    if (document.querySelector(".polygon") == null || points.length == 0)
+      return;
+
+    const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
+          pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o)),
+          motorcycleGraph = new MotorcycleGraph(pointsForMotorcycleGraph, positionInfo);
+
+    motorcycleGraph.calculateMotorcycleSegments();
+    motorcycles = motorcycleGraph.getMotorcycleSegments();
+    drawMotorcycles(motorcycles);
+  }
+
+  function middleLayerDrawMotorcycleGraph(segments, points) {
+    if (document.querySelector(".polygon") != null && segments.length > 0) {
+      drawMotorcycleGraph(segments, points);
     }
   }
 
-  function drawMotorcycleGraph(points) {
-    const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
-          motorcycleGraph = new MotorcycleGraph(points, positionInfo),
-          segments = motorcycleGraph.getSegments();
-
+  function createG(className) {
     let g;
-    if (svg.select("g.bisector").empty()) {
-      g = svg.append("g").attr("class", "bisector");
+    if (svg.select(`g.${className}`).empty()) {
+      g = svg.append("g").attr("class", className);
     } else {
-      g = svg.select("g.bisector");
+      g = svg.select(`g.${className}`);
       g.selectAll("line").remove();
+      g.selectAll("text").remove();
     }
+    return g;
+  }
+
+  function drawMotorcycleGraph(motorcyclesCustom, points) {
+    const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
+          pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o)),
+          motorcycleGraph = new MotorcycleGraph(pointsForMotorcycleGraph, positionInfo);
+
+    motorcycleGraph.calculateMotorcycleGraph(motorcyclesCustom);
+
+    const  segments = motorcycleGraph.getSegments();
+
+    const gBisector = createG("bisector");
     for (const segment of segments)
-      appendLine(g, segment.s.toArray(), segment.t.toArray());
+      appendLine(gBisector, segment.s.toArray(), segment.t.toArray());
+
+  }
+
+  function drawMotorcycles(motorcycles) {
+    const gFull = createG("full");
+    for (const segment of motorcycles)
+      appendLine(gFull, segment.s.toArray(), segment.t.toArray(), "dash", "#FF5733", segment.getText());
   }
 
   function actOnClick(event) {
@@ -174,7 +212,7 @@
 
     polygonActive.set(newPoints);
 
-    middleLayerDrawMotorcycleGraph(newPoints);
+    middleLayerDrawMotorcycles(newPoints);
   }
 
   function drawPolygon(points) {
@@ -195,7 +233,7 @@
     polygonActive.set(points);
 
     drawPolygon(points);
-    middleLayerDrawMotorcycleGraph(points);
+    middleLayerDrawMotorcycles(points);
 
     points = [];
     drawing = false;
@@ -243,15 +281,25 @@
       .attr("stroke", getRandomColor());
   }
 
-  function appendLine(g, startPoint, endPoint) {
-    g.append("line")
+  function appendLine(g, startPoint, endPoint, isDashed="", color="#53DBF3", text="") {
+    const line = g.append("line")
       .attr("x1", startPoint[0])
       .attr("y1", startPoint[1])
       .attr("x2", endPoint[0] + 2)
       .attr("y2", endPoint[1])
-      .attr("stroke", "#53DBF3")
+      .attr("stroke", color)
       .attr("stroke-width", 1);
 
+    if (isDashed === "dash")
+      line.attr("stroke-dasharray", 10);
+
+    if (text !== "") {
+      g.append("text")
+        .attr("x", startPoint[0])
+        .attr("y", startPoint[1])
+        .text(text)
+        .style("font", "italic 15px sans-serif");
+    }
   }
 
 </script>

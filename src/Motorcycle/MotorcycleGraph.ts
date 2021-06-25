@@ -3,15 +3,15 @@ import { MotorcycleSegment } from "./MotorcycleSegment";
 import { MotorcyclePoint } from "./MotorcyclePoint";
 
 export class MotorcycleGraph {
-  public polygon: geom.Segment[];
+  public polygon: geom.Segment[] = [];
   public positionInfo: any;
   public motorcycleSegments: MotorcycleSegment[] = [];
+  public motorcycleFullSegments: MotorcycleSegment[] = [];
   public intersectionPoints: MotorcyclePoint[] = [];
 
   public constructor(points: geom.IPoint[], positionInfo: any) {
-    this.polygon = this.createPolygon(points);
     this.positionInfo = positionInfo;
-    this.calculateMotorcycleGraph();
+    this.polygon = this.createPolygon(points);
   }
 
   public add(intersection: MotorcyclePoint): void {
@@ -41,7 +41,7 @@ export class MotorcycleGraph {
     return [this.positionInfo.width, this.positionInfo.height];
   }
 
-  private motorcycle(segA: geom.ISegment, segB: geom.ISegment): MotorcycleSegment {
+  private motorcycle(segA: geom.ISegment, segB: geom.ISegment, text=""): MotorcycleSegment {
     let bisector = geom.angleBisector(segA, segB).invert();
     let [width, height] = this.getWidthHeight();
     let scaleFactor = Math.sqrt(width*width + height*height) / bisector.norm();
@@ -54,26 +54,28 @@ export class MotorcycleGraph {
     const alpha = 2*Math.PI - geom.angleToRadians(geom.segmentAngleSegment(segA, segB)),
           velocity = 1 / Math.sin(alpha/2);
 
-    return new MotorcycleSegment(start, target, velocity);
+    return new MotorcycleSegment(start, target, velocity, text);
   }
 
-  private calculateMotorcycleGraph(): void {
-    this.calculateMotorcycleSegments();
+  public calculateMotorcycleGraph(segments: MotorcycleSegment[]): void {
+    this.motorcycleSegments = segments;
+
     this.calculateMotorcycleSegmentIntersections();
     this.buildMotorcycleGraph();
   }
 
-  private calculateMotorcycleSegments(): void {
+  public calculateMotorcycleSegments(): void {
     const size = this.polygon.length;
+    let motorcycleCounter = 0;
 
     for (let i = 0; i < size-1; i += 1) {
       if (geom.isReflex(this.polygon[i], this.polygon[i+1])) {
-        this.motorcycleSegments.push(this.motorcycle(this.polygon[i], this.polygon[i+1]));
+        this.motorcycleFullSegments.push(this.motorcycle(this.polygon[i], this.polygon[i+1], `${motorcycleCounter++}`));
       }
     }
 
     if (geom.isReflex(this.polygon[size - 1], this.polygon[0])) {
-      this.motorcycleSegments.push(this.motorcycle(this.polygon[size - 1], this.polygon[0]));
+      this.motorcycleFullSegments.push(this.motorcycle(this.polygon[size - 1], this.polygon[0], `${motorcycleCounter++}`));
     }
   }
 
@@ -130,8 +132,15 @@ export class MotorcycleGraph {
     }
   }
 
+  public addSegments(segment: MotorcycleSegment) {
+    this.motorcycleSegments.push(segment);
+  }
+
   public getSegments() {
     return this.motorcycleSegments;
   }
 
+  public getMotorcycleSegments() {
+    return this.motorcycleFullSegments;
+  }
 }
