@@ -31,10 +31,23 @@
     height: 200px;
     left: calc(100% - 205px);
   }
+
+  .motorcycle-custom-list-item {
+    float: right;
+    margin: 5px
+  }
+
+  .motorcycle-custom-list-item:after {
+    content: ",";
+  }
 </style>
 
 <div class="polygon-menu">
   <Button color="red">clone</Button>
   <Select {items} on:change={chooseMotorcycle} />
-  <List items={motorcyclesOut} />
+  <List items={motorcyclesOut}>
+    <li slot="item" let:item={item} class="motorcycle-custom-list-item">
+      {item.text}
+    </li>
+  </List>
 </div>
