@@ -21,6 +21,8 @@
 
   $: if ($reset) {
     points = [];
+    motorcycles = [];
+    motorcyclesCustomList = [];
     svg.selectAll("g").remove();
     $reset = false;
   }
@@ -194,6 +196,16 @@
   function handleDrag(event) {
     if (drawing)
       return;
+
+    // TODO:
+    // it has to be defined what should be done after a moved node
+    // if there are motorcycles in the custom list. what should happend
+    // if there are introduced new motorcycles affecting the allready
+    // computed
+    if (motorcyclesCustomList.length > 0) {
+      alert("if motorcycles custom list has values it is not possible to move for now");
+      return;
+    }
 
     let dragCircle = d3.select(this), newPoints = [];
 
