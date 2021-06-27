@@ -5,9 +5,13 @@
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
 
-  let motorcyclesOut;
+  let motorcyclesOut = [];
+  let items = [];
 
-  $: items = motorcycles.map((m) => { return {value: m.getText(), text: m.getText()}; });
+  $: {
+    items = motorcycles.map((m) => { return {value: m.getText(), text: m.getText()}; });
+    motorcyclesOut = motorcyclesCustomList.map((m) => { return {text: m.getText()}; })
+  }
 
   function chooseMotorcycle(item) {
     for (let i = 0; i < motorcycles.length; ++i) {
