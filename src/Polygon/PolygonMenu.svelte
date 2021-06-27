@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button, Select, List } from "smelte";
+  import { resetMotorcycles } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -19,6 +20,13 @@
 
     items = motorcycles.map((m) => { return {value: m.getText(), text: m.getText()}; })
     motorcyclesOut = motorcyclesCustomList.map((m) => { return {text: m.getText()}; })
+  }
+
+  function handleClickReset() {
+    motorcyclesCustomList = [];
+    motorcycles = [];
+    motorcyclesOut = [];
+    $resetMotorcycles = true;
   }
 </script>
 
@@ -44,6 +52,7 @@
 
 <div class="polygon-menu">
   <Button color="red">clone</Button>
+  <Button color="red" on:click={handleClickReset}>reset</Button>
   <Select {items} on:change={chooseMotorcycle} />
   <List items={motorcyclesOut}>
     <li slot="item" let:item={item} class="motorcycle-custom-list-item">

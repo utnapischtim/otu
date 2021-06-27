@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -33,9 +33,25 @@
     load.set(false);
   }
 
+  $: if ($resetMotorcycles) {
+    deleteMotorcycles();
+    // setTimeout is necessary to retrigger the reactivity
+    // otherwise the $: items = line in PolygonMenu would not be
+    // triggered
+    setTimeout(() => {
+      middleLayerDrawMotorcycles($polygonActive);
+    }, 50);
+    $resetMotorcycles = false;
+  }
+
   $: {
     middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
     drawMotorcycles(motorcycles);
+  }
+
+  function deleteMotorcycles() {
+    const bisector = svg.select("g.bisector");
+    bisector.selectAll("line").remove();
   }
 
   function createLines(points) {
