@@ -124,6 +124,10 @@
   }
 
   function middleLayerDrawMotorcycleGraph(segments, points) {
+    for (const segment of segments) {
+      segment.reset();
+    }
+
     if (document.querySelector(".polygon") != null && segments.length > 0) {
       drawMotorcycleGraph(segments, points);
     }
