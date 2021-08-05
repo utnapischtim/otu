@@ -55,7 +55,7 @@
 </style>
 
 <div class="polygon-menu">
-  <Button color="red">clone</Button>
+  <!-- <Button color="red">clone</Button> -->
   <Button color="red" on:click={handleClickReset}>reset</Button>
   <Select {items} on:change={chooseMotorcycle} />
   <List items={motorcyclesOut}>

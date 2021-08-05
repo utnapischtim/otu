@@ -9,8 +9,8 @@
 <style>
   .polygon-container {
     float: right;
+    height: 100%;
     width: auto;
-    height: 700px;
   }
 </style>
 

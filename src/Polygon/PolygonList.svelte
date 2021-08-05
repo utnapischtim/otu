@@ -5,8 +5,8 @@
 <style>
   #polygon-list {
     border: 1px solid black;
-    width: 90%;
-    height: 700px;
+    width: 84%;
+    height: 100%;
     float: left;
   }
 
