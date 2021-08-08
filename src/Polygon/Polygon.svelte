@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load, resetMotorcycles } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, customList } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -34,17 +34,16 @@
   }
 
   $: if ($resetMotorcycles) {
+    for (const segment of motorcycles) {
+      segment.reset();
+    }
+
     deleteMotorcycles();
-    // setTimeout is necessary to retrigger the reactivity
-    // otherwise the $: items = line in PolygonMenu would not be
-    // triggered
-    setTimeout(() => {
-      middleLayerDrawMotorcycles($polygonActive);
-    }, 50);
+    drawMotorcycles(motorcycles);
     $resetMotorcycles = false;
   }
 
-  $: {
+  $: if ($customList) {
     middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
     drawMotorcycles(motorcycles);
   }
@@ -124,10 +123,6 @@
   }
 
   function middleLayerDrawMotorcycleGraph(segments, points) {
-    for (const segment of segments) {
-      segment.reset();
-    }
-
     if (document.querySelector(".polygon") != null && segments.length > 0) {
       drawMotorcycleGraph(segments, points);
     }
@@ -163,7 +158,8 @@
   function drawMotorcycles(motorcycles) {
     const gFull = createG("full");
     for (const segment of motorcycles)
-      appendLine(gFull, segment.s.toArray(), segment.t.toArray(), "dash", "#FF5733", segment.getText());
+      if (!segment.isUsed)
+        appendLine(gFull, segment.s.toArray(), segment.t.toArray(), "dash", "#FF5733", segment.getText());
   }
 
   function actOnClick(event) {

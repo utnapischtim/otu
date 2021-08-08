@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Select, List } from "smelte";
-  import { resetMotorcycles } from "../store";
+  import { resetMotorcycles, customList } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -9,27 +9,25 @@
   let items = [];
 
   $: {
-    items = motorcycles.map((m) => { return {value: m.getText(), text: m.getText()}; });
+    items = motorcycles.filter(m => !m.isUsed).map((m) => { return {value: m.getText(), text: m.getText()}; });
     motorcyclesOut = motorcyclesCustomList.map((m) => { return {text: m.getText()}; })
   }
 
   function chooseMotorcycle(item) {
     for (let i = 0; i < motorcycles.length; ++i) {
       if (motorcycles[i].getText() == item.detail) {
+        motorcycles[i].isUsed = true;
         motorcyclesCustomList = [motorcycles[i], ...motorcyclesCustomList];
       }
     }
 
-    motorcycles = motorcycles.filter(m => m.getText() != item.detail);
-
-    items = motorcycles.map((m) => { return {value: m.getText(), text: m.getText()}; })
-    motorcyclesOut = motorcyclesCustomList.map((m) => { return {text: m.getText()}; })
+    $customList = true;
   }
 
   function handleClickReset() {
     motorcyclesCustomList = [];
-    motorcycles = [];
     motorcyclesOut = [];
+    motorcycles.forEach(m => m.isUsed = false);
     $resetMotorcycles = true;
   }
 </script>

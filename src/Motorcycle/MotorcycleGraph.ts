@@ -123,7 +123,7 @@ export class MotorcycleGraph {
         if (!geom.sharePoint(segA, segB)) {
           try {
             const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB);
-            segA.t = inter;
+            segA.setTarget(inter);
           } catch (e) {
             // console.log(e);
           }
