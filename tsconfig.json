@@ -5,6 +5,7 @@
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"],
 
   "compilerOptions": {
+    "allowJs": true,                          /* because of ts-jest */
     "declaration": true,
     "module": "esnext",
     "target": "es2017",
