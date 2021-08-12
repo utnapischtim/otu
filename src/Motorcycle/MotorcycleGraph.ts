@@ -89,17 +89,31 @@ export class MotorcycleGraph {
       for (const segB of this.motorcycleSegments) {
         if (segA.notEqual(segB)) {
           try {
-            const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB),
-                  lostPoint: MotorcyclePoint = MotorcyclePoint.fromPoint(inter);
+            const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB);
 
-            const segATime: number = time(segA.s, inter, segA.velocity),
-                  segBTime: number = time(segB.s, inter, segB.velocity);
+            const segATime: number = time(segA.s, inter, segA.velocity);
+            const segBTime: number = time(segB.s, inter, segB.velocity);
 
-            lostPoint.time = segATime < segBTime ? segBTime : segATime;;
-            lostPoint.lostMotorcycle = segATime < segBTime ? segB : segA;
-            lostPoint.winMotorcycle = segATime < segBTime ? segA : segB;
+            const pointA: MotorcyclePoint = MotorcyclePoint.fromPoint(inter);
+            pointA.time = segATime;
+            pointA.lostMotorcycle = segATime < segBTime ? segB : segA;
+            pointA.winMotorcycle = segATime < segBTime ? segA : segB;
 
-            this.add(lostPoint);
+            const pointB: MotorcyclePoint = MotorcyclePoint.fromPoint(inter);
+            pointB.time = segBTime
+            pointB.lostMotorcycle = segATime < segBTime ? segB : segA;
+            pointB.winMotorcycle = segATime < segBTime ? segA : segB;
+
+            if (segATime < segBTime) {
+              pointA.state = "win";
+              pointB.state = "lost";
+            } else {
+              pointA.state = "lost";
+              pointB.state = "win";
+            }
+
+            this.add(pointA);
+            this.add(pointB);
           } catch (e) {
             //console.log(e);
           }
@@ -112,9 +126,24 @@ export class MotorcycleGraph {
     this.intersectionPoints.sort((a, b) => a.time - b.time);
 
     for (const inter of this.intersectionPoints) {
-      if (!inter.lostMotorcycle.isClosed && !inter.winMotorcycle.isClosed) {
-        inter.lostMotorcycle.t = inter;
-        inter.lostMotorcycle.isClosed = true;
+      if (inter.state == "win") {
+        inter.lostMotorcycle.winTimes[inter.winMotorcycle.text] = inter.time;
+      }
+
+      if (inter.state == "lost") {
+        if (inter.winMotorcycle.isAlive && inter.lostMotorcycle.isAlive) {
+          inter.lostMotorcycle.isAlive = false;
+          inter.lostMotorcycle.timeOfDeath = inter.time;
+          inter.lostMotorcycle.t = inter;
+        }
+
+        else if (!inter.winMotorcycle.isAlive && inter.lostMotorcycle.isAlive) {
+          if (inter.lostMotorcycle.winTimes[inter.winMotorcycle.text] < inter.winMotorcycle.timeOfDeath) {
+            inter.lostMotorcycle.isAlive = false;
+            inter.lostMotorcycle.timeOfDeath = inter.time;
+            inter.lostMotorcycle.t = inter;
+          }
+        }
       }
     }
 

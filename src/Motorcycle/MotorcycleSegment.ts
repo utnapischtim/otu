@@ -5,11 +5,13 @@ export class MotorcycleSegment extends geom.Segment {
   public intersections: MotorcyclePoint[] = [];
   public velocity: number = 0;
   public text: string = "";
-  public isClosed: boolean = false;
+  public isAlive: boolean = true;
   public backup: geom.IPoint[] = [];
   public reductionCounter: number = 0;
   public reference_target: geom.IPoint;
   public isUsed: boolean = false;
+  public timeOfDeath: number = 0;
+  public winTimes: any = {};
 
   public constructor(s: geom.IPoint, t: geom.IPoint, v: number = 0, text: string = "") {
     super(s, t);
@@ -33,6 +35,7 @@ export class MotorcycleSegment extends geom.Segment {
   public reset(): void {
     this.s = this.backup[0].clone();
     this.t = this.backup[1].clone();
+    this.isAlive = true;
   }
 
   public setTarget(t: geom.IPoint): void {
