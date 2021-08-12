@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load, resetMotorcycles, customList } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -43,9 +43,34 @@
     $resetMotorcycles = false;
   }
 
-  $: if ($customList) {
+  $: if ($addedToCustomList) {
+    for (const motorcycle of motorcycles) {
+      motorcycle.reset();
+    }
+
     middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
     drawMotorcycles(motorcycles);
+  }
+
+  $: if ($removedFromCustomList) {
+    let localCustomList = [];
+
+    for (const motorcycle of motorcycles) {
+      motorcycle.reset();
+    }
+
+    for (const customEntry of motorcyclesCustomList) {
+      for (const motorcycle of motorcycles) {
+        motorcycle.reset();
+      }
+
+      customEntry.isUsed = true;
+      localCustomList.push(customEntry);
+      middleLayerDrawMotorcycleGraph(localCustomList, $polygonActive);
+      drawMotorcycles(motorcycles);
+    }
+
+    motorcyclesCustomList = localCustomList;
   }
 
   function deleteMotorcycles() {
@@ -151,7 +176,7 @@
 
     const gBisector = createG("bisector");
     for (const segment of segments)
-      appendLine(gBisector, segment.s.toArray(), segment.t.toArray());
+      appendLine(gBisector, segment.s.toArray(), segment.t.toArray(), "solid", "#53DBF3", segment.getText());
 
   }
 

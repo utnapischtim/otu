@@ -36,6 +36,8 @@ export class MotorcycleSegment extends geom.Segment {
     this.s = this.backup[0].clone();
     this.t = this.backup[1].clone();
     this.isAlive = true;
+    this.reductionCounter = 0;
+    this.reference_target = this.backup[1].clone();
   }
 
   public setTarget(t: geom.IPoint): void {

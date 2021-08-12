@@ -15,4 +15,6 @@ export const polygons = createPolygonStore();
 
 export const polygonActive = writable([]);
 
-export const customList = writable(false);
+export const addedToCustomList = writable(false);
+
+export const removedFromCustomList = writable(false);
