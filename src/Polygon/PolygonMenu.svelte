@@ -46,6 +46,16 @@
     motorcycles.forEach(m => m.isUsed = false);
     $resetMotorcycles = true;
   }
+
+  function shuffle() {
+    motorcyclesCustomList = motorcycles
+      .map((v) => ({v, sort: Math.random()}))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({v}) => v);
+
+    $removedFromCustomList = false;
+    $addedToCustomList = true;
+  }
 </script>
 
 <style>
@@ -73,6 +83,7 @@
 <div class="polygon-menu">
   <!-- <Button color="red">clone</Button> -->
   <Button color="red" on:click={handleClickReset}>reset</Button>
+  <Button color="red" on:click={shuffle}>shuffle</Button>
   <h3>Add motorcycle to custom list</h3>
   <Select {items} on:change={chooseMotorcycle} />
   <h3>History of added motorcycle's</h3>
