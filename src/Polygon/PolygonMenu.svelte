@@ -53,6 +53,8 @@
       .sort((a, b) => a.sort - b.sort)
       .map(({v}) => v);
 
+    motorcyclesCustomList.forEach(v => v.isUsed = true);
+
     $removedFromCustomList = false;
     $addedToCustomList = true;
   }

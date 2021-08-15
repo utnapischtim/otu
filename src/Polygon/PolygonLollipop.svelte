@@ -45,14 +45,16 @@
       .filter(a => a.recalculationCount > 0)
       .sort((a, b) => a.reflexNodeNumber - b.reflexNodeNumber);
 
+    svg.select("g").remove();
+
     if (data.length > 0) {
+      init();
       drawLollipops(data);
     }
   }
 
   onMount(() => {
     svg = d3.select(".lollipop");
-    init();
   });
 
   function init() {

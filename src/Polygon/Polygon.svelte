@@ -20,14 +20,13 @@
   });
 
   $: if ($reset) {
-    points = [];
-    motorcycles = [];
-    motorcyclesCustomList = [];
-    svg.selectAll("g").remove();
+    resetAll();
     $reset = false;
   }
 
   $: if ($load) {
+    resetAll();
+    deleteMotorcycles();
     drawPolygon($polygonActive);
     middleLayerDrawMotorcycles($polygonActive);
     load.set(false);
@@ -71,6 +70,13 @@
     }
 
     motorcyclesCustomList = localCustomList;
+  }
+
+  function resetAll() {
+    points = [];
+    motorcycles = [];
+    motorcyclesCustomList = [];
+    svg.selectAll("g").remove();
   }
 
   function deleteMotorcycles() {
