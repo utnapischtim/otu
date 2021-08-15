@@ -51,8 +51,21 @@ export class MotorcycleGraph {
     let start = segA.t.clone();
     let target = start.add(bisector);
 
-    const alpha = 2*Math.PI - geom.angleToRadians(geom.segmentAngleSegment(segA, segB)),
-          velocity = 1 / Math.sin(alpha/2);
+    const alpha = 2*Math.PI - geom.angleToRadians(geom.segmentAngleSegment(segA, segB));
+    const velocity = 1 / Math.sin(alpha/2);
+
+    const motorcycle = new MotorcycleSegment(start, target);
+
+    for (const segment of this.polygon) {
+      if (!geom.sharePoint(motorcycle, segment)) {
+        try {
+          target = <geom.IPoint>geom.intersection(motorcycle, segment);
+          motorcycle.setTarget(target);
+        } catch (e) {
+          // console.log(e);
+        }
+      }
+    }
 
     return new MotorcycleSegment(start, target, velocity, text);
   }
@@ -138,19 +151,6 @@ export class MotorcycleGraph {
         else if (!inter.winMotorcycle.isAlive && inter.lostMotorcycle.isAlive) {
           if (inter.lostMotorcycle.winTimes[inter.winMotorcycle.text] < inter.winMotorcycle.timeOfDeath) {
             inter.lostMotorcycle.setTarget(inter, inter.time)
-          }
-        }
-      }
-    }
-
-    for (const segA of this.motorcycleSegments) {
-      for (const segB of this.polygon) {
-        if (!geom.sharePoint(segA, segB)) {
-          try {
-            const inter: geom.IPoint = <geom.IPoint>geom.intersection(segA, segB);
-            segA.setTarget(inter);
-          } catch (e) {
-            // console.log(e);
           }
         }
       }
