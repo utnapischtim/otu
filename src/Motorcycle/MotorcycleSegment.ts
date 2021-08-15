@@ -27,6 +27,14 @@ export class MotorcycleSegment extends geom.Segment {
     return `${this.text} (${this.reductionCounter})`;
   }
 
+  public getNodeName(): string {
+    return this.text;
+  }
+
+  public getReductionCounter(): number {
+    return this.reductionCounter;
+  }
+
   private doBackup(): void {
     this.backup.push(this.s.clone());
     this.backup.push(this.t.clone());
