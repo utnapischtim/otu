@@ -61,18 +61,18 @@
 <style>
   .polygon-menu {
     position: relative;
-    top: -88%;
+    top: -79%;
     border: 1px solid black;
     width: 255px;
-    left: calc(100% - 255px);
+    left: 101%;
+  }
+
+  List {
+    columns: 4;
   }
 
   .motorcycle-custom-list-item {
-    margin: 5px
-  }
-
-  .motorcycle-custom-list-item:after {
-    content: ",";
+    content: ',';
   }
 
   h3 {
@@ -87,7 +87,7 @@
   <h3>Add motorcycle to custom list</h3>
   <Select {items} on:change={chooseMotorcycle} />
   <h3>History of added motorcycle's</h3>
-  <List items={motorcyclesOut}>
+  <List items={motorcyclesOut} classes="motorcycle-custom-list">
     <li slot="item" let:item={item} class="motorcycle-custom-list-item">
       {item.text}
     </li>
