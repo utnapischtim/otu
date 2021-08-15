@@ -132,16 +132,12 @@ export class MotorcycleGraph {
 
       if (inter.state == "lost") {
         if (inter.winMotorcycle.isAlive && inter.lostMotorcycle.isAlive) {
-          inter.lostMotorcycle.isAlive = false;
-          inter.lostMotorcycle.timeOfDeath = inter.time;
-          inter.lostMotorcycle.t = inter;
+          inter.lostMotorcycle.setTarget(inter, inter.time)
         }
 
         else if (!inter.winMotorcycle.isAlive && inter.lostMotorcycle.isAlive) {
           if (inter.lostMotorcycle.winTimes[inter.winMotorcycle.text] < inter.winMotorcycle.timeOfDeath) {
-            inter.lostMotorcycle.isAlive = false;
-            inter.lostMotorcycle.timeOfDeath = inter.time;
-            inter.lostMotorcycle.t = inter;
+            inter.lostMotorcycle.setTarget(inter, inter.time)
           }
         }
       }

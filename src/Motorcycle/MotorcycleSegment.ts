@@ -48,10 +48,15 @@ export class MotorcycleSegment extends geom.Segment {
     this.reference_target = this.backup[1].clone();
   }
 
-  public setTarget(t: geom.IPoint): void {
+  public setTarget(t: geom.IPoint, timeOfDeath: number = 0): void {
     if (this.reference_target.notEqual(t)) {
-      this.reductionCounter += 1;
       this.reference_target = t;
+    }
+
+    if (timeOfDeath > 0) {
+      this.reductionCounter += 1;
+      this.timeOfDeath = timeOfDeath;
+      this.isAlive = false;
     }
 
     this.t = t;
