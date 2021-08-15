@@ -42,7 +42,8 @@
   $: {
     data = motorcyclesCustomList
       .map((m) => ({reflexNodeNumber: m.getNodeName(), recalculationCount: m.getReductionCounter()}))
-      .filter(a => a.recalculationCount > 0);
+      .filter(a => a.recalculationCount > 0)
+      .sort((a, b) => a.reflexNodeNumber - b.reflexNodeNumber);
 
     if (data.length > 0) {
       drawLollipops(data);
