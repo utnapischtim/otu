@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -356,8 +356,13 @@
       g.append("text")
         .attr("x", startPoint[0])
         .attr("y", startPoint[1])
+        .attr("style", "cursor: pointer; font: italic 15px sans-serif")
         .text(text)
-        .style("font", "italic 15px sans-serif");
+        .on("click", (e) => alterMotorcycle.set(text));
+
+      line
+        .attr("style", "cursor: pointer")
+        .on("click", (e) => alterMotorcycle.set(text))
     }
   }
 

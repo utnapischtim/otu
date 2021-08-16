@@ -18,3 +18,5 @@ export const polygonActive = writable([]);
 export const addedToCustomList = writable(false);
 
 export const removedFromCustomList = writable(false);
+
+export const alterMotorcycle = writable("");

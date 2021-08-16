@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Select, List } from "smelte";
-  import { resetMotorcycles, addedToCustomList, removedFromCustomList } from "../store";
+  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -8,6 +8,20 @@
   let motorcyclesOut = [];
   let motorcyclesOutSelectable = [];
   let items = [];
+
+  let inUseNodeNames = {};
+
+  $: if ($alterMotorcycle) {
+    let nodeName = $alterMotorcycle;
+
+    if (nodeName in inUseNodeNames) {
+      removeMotorcycle({detail: nodeName});
+    } else {
+      chooseMotorcycle({detail: nodeName});
+    }
+
+    alterMotorcycle.set("");
+  }
 
   $: {
     items = motorcycles.filter(m => !m.isUsed).map((m) => { return {value: m.getText(), text: m.getText()}; });
@@ -23,6 +37,8 @@
       }
     }
 
+    inUseNodeNames[item.detail] = true;
+
     $removedFromCustomList = false;
     $addedToCustomList = true;
   }
@@ -36,6 +52,8 @@
 
     motorcyclesCustomList = motorcyclesCustomList.filter(m => m.getText() != item.detail);
 
+    delete inUseNodeNames[item.detail];
+
     $addedToCustomList = false;
     $removedFromCustomList = true;
   }
@@ -44,6 +62,7 @@
     motorcyclesCustomList = [];
     motorcyclesOut = [];
     motorcycles.forEach(m => m.isUsed = false);
+    inUseNodeNames = {};
     $resetMotorcycles = true;
   }
 
