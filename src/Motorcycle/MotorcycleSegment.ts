@@ -44,17 +44,20 @@ export class MotorcycleSegment extends geom.Segment {
     this.s = this.backup[0].clone();
     this.t = this.backup[1].clone();
     this.isAlive = true;
+  }
+
+  public resetReductionCounter(): void {
     this.reductionCounter = 0;
     this.reference_target = this.backup[1].clone();
   }
 
   public setTarget(t: geom.IPoint, timeOfDeath: number = 0): void {
-    if (this.reference_target.notEqual(t)) {
+    if (geom.distance(this.s, t) < geom.distance(this.s, this.reference_target)) {
+      this.reductionCounter += 1;
       this.reference_target = t;
     }
 
     if (timeOfDeath > 0) {
-      this.reductionCounter += 1;
       this.timeOfDeath = timeOfDeath;
       this.isAlive = false;
     }

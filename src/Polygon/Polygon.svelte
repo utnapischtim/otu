@@ -35,6 +35,7 @@
   $: if ($resetMotorcycles) {
     for (const segment of motorcycles) {
       segment.reset();
+      segment.resetReductionCounter();
     }
 
     deleteMotorcycles();
@@ -43,12 +44,24 @@
   }
 
   $: if ($addedToCustomList) {
+    let localCustomList = [];
+
     for (const motorcycle of motorcycles) {
       motorcycle.reset();
     }
 
-    middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
-    drawMotorcycles(motorcycles);
+    for (const customEntry of motorcyclesCustomList) {
+      for (const motorcycle of motorcycles) {
+        motorcycle.reset();
+      }
+
+      customEntry.isUsed = true;
+      localCustomList.push(customEntry);
+      middleLayerDrawMotorcycleGraph(localCustomList, $polygonActive);
+      drawMotorcycles(motorcycles);
+    }
+
+    motorcyclesCustomList = localCustomList;
   }
 
   $: if ($removedFromCustomList) {
@@ -82,6 +95,7 @@
   function deleteMotorcycles() {
     const bisector = svg.select("g.bisector");
     bisector.selectAll("line").remove();
+    bisector.selectAll("text").remove();
   }
 
   function createLines(points) {
