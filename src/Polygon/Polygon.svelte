@@ -48,6 +48,7 @@
 
     for (const motorcycle of motorcycles) {
       motorcycle.reset();
+      motorcycle.resetReductionCounter();
     }
 
     for (const customEntry of motorcyclesCustomList) {

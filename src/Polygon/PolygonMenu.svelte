@@ -30,29 +30,31 @@
   }
 
   function chooseMotorcycle(item) {
+    const nodeName = item.detail.split(" ")[0];
     for (let i = 0; i < motorcycles.length; ++i) {
-      if (motorcycles[i].getText() == item.detail) {
+      if (motorcycles[i].getNodeName() == nodeName) {
         motorcycles[i].isUsed = true;
         motorcyclesCustomList = [...motorcyclesCustomList, motorcycles[i]];
       }
     }
 
-    inUseNodeNames[item.detail] = true;
+    inUseNodeNames[nodeName] = true;
 
     $removedFromCustomList = false;
     $addedToCustomList = true;
   }
 
   function removeMotorcycle(item) {
+    const nodeName = item.detail.split(" ")[0];
     for (const motorcycle of motorcyclesCustomList) {
-      if (motorcycle.getText() == item.detail) {
+      if (motorcycle.getNodeName() == nodeName) {
         motorcycle.isUsed = false;
       }
     }
 
-    motorcyclesCustomList = motorcyclesCustomList.filter(m => m.getText() != item.detail);
+    motorcyclesCustomList = motorcyclesCustomList.filter(m => m.getNodeName() != nodeName);
 
-    delete inUseNodeNames[item.detail];
+    delete inUseNodeNames[nodeName];
 
     $addedToCustomList = false;
     $removedFromCustomList = true;
