@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button, Select, List } from "smelte";
-  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle } from "../store";
+  import { Button, Select, List, Switch, Checkbox } from "smelte";
+  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -79,6 +79,10 @@
     $removedFromCustomList = false;
     $addedToCustomList = true;
   }
+
+  function switchLabel() {
+    $labelOn = !$labelOn;
+  }
 </script>
 
 <style>
@@ -107,6 +111,7 @@
   <!-- <Button color="red">clone</Button> -->
   <Button color="red" on:click={handleClickReset}>reset</Button>
   <Button color="red" on:click={shuffle}>shuffle</Button>
+  <Checkbox checked label="Label on/off" on:change={switchLabel}/>
   <h3>Add motorcycle to custom list</h3>
   <Select {items} on:change={chooseMotorcycle} />
   <h3>History of added motorcycle's</h3>

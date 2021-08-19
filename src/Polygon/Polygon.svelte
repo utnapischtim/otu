@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -84,6 +84,10 @@
     }
 
     motorcyclesCustomList = localCustomList;
+  }
+
+  $: {
+    svg.selectAll("text").classed("label-visible", $labelOn);
   }
 
   function resetAll() {
@@ -371,7 +375,7 @@
       g.append("text")
         .attr("x", startPoint[0])
         .attr("y", startPoint[1])
-        .attr("style", "cursor: pointer; font: italic 15px sans-serif")
+        .attr("class", "label-unvisible label-visible")
         .text(text)
         .on("click", (e) => alterMotorcycle.set(text));
 
@@ -387,6 +391,16 @@
   .polygon {
     height: 100%;
     width: 100%;
+  }
+
+  :global(.label-unvisible) {
+    display: none;
+  }
+
+  :global(.label-visible) {
+    display: block !important;
+    cursor: pointer;
+    font: italic 15px sans-serif
   }
 </style>
 
