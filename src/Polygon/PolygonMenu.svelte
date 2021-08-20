@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Select, List, Switch, Checkbox } from "smelte";
-  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn } from "../store";
+  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn, isShuffled } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -40,7 +40,6 @@
 
     inUseNodeNames[nodeName] = true;
 
-    $removedFromCustomList = false;
     $addedToCustomList = true;
   }
 
@@ -56,7 +55,6 @@
 
     delete inUseNodeNames[nodeName];
 
-    $addedToCustomList = false;
     $removedFromCustomList = true;
   }
 
@@ -76,8 +74,7 @@
 
     motorcyclesCustomList.forEach(v => v.isUsed = true);
 
-    $removedFromCustomList = false;
-    $addedToCustomList = true;
+    $isShuffled = true;
   }
 
   function switchLabel() {
@@ -94,7 +91,7 @@
     left: 101%;
   }
 
-  List {
+  :global(List) {
     columns: 4;
   }
 

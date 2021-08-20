@@ -22,3 +22,5 @@ export const removedFromCustomList = writable(false);
 export const alterMotorcycle = writable("");
 
 export const labelOn = writable(true);
+
+export const isShuffled = writable(false);

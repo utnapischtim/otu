@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
-  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn, isShuffled } from "../store";
   import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
@@ -11,6 +11,7 @@
   let drawing = false, basePoint;
   let points = [], g;
   let svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
+  let isLabelOn = false;
   const dragger = d3.drag().on("drag", handleDrag);
 
   onMount(() => {
@@ -63,6 +64,7 @@
     }
 
     motorcyclesCustomList = localCustomList;
+    $addedToCustomList = false;
   }
 
   $: if ($removedFromCustomList) {
@@ -84,6 +86,12 @@
     }
 
     motorcyclesCustomList = localCustomList;
+    $removedFromCustomList = false;
+  }
+
+  $: if ($isShuffled) {
+    middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
+    drawMotorcycles(motorcycles);
   }
 
   $: {
@@ -375,7 +383,8 @@
       g.append("text")
         .attr("x", startPoint[0])
         .attr("y", startPoint[1])
-        .attr("class", "label-unvisible label-visible")
+        .attr("class", "label-unvisible")
+        .classed("label-visible", $labelOn)
         .text(text)
         .on("click", (e) => alterMotorcycle.set(text));
 
