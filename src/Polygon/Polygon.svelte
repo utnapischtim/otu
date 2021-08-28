@@ -90,8 +90,25 @@
   }
 
   $: if ($isShuffled) {
-    middleLayerDrawMotorcycleGraph(motorcyclesCustomList, $polygonActive);
-    drawMotorcycles(motorcycles);
+    let localCustomList = [];
+
+    for (const motorcycle of motorcycles) {
+      motorcycle.reset();
+      motorcycle.resetReductionCounter();
+    }
+
+    for (const customEntry of motorcyclesCustomList) {
+      for (const motorcycle of motorcycles) {
+        motorcycle.reset();
+      }
+
+      customEntry.isUsed = true;
+      localCustomList.push(customEntry);
+      middleLayerDrawMotorcycleGraph(localCustomList, $polygonActive);
+      drawMotorcycles(motorcycles);
+    }
+
+    motorcyclesCustomList = localCustomList;
   }
 
   $: {
