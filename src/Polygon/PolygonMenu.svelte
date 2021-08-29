@@ -24,9 +24,16 @@
   }
 
   $: {
-    items = motorcycles.filter(m => !m.isUsed).map((m) => { return {value: m.getText(), text: m.getText()}; });
-    motorcyclesOut = motorcyclesCustomList.map((m) => { return {text: m.getText()}; })
-    motorcyclesOutSelectable = motorcyclesCustomList.map((m) => { return {value: m.getText(), text: m.getText()}; });
+    items = motorcycles
+      .filter(m => !m.isUsed)
+      .map((m) => { return {value: m.getText(), text: m.getText()}; });
+
+    motorcyclesOut = motorcyclesCustomList
+      .sort((a, b) => b.reductionCounter - a.reductionCounter)
+      .map((m) => { return {text: m.getText()}; })
+
+    motorcyclesOutSelectable = motorcyclesCustomList
+      .map((m) => { return {value: m.getText(), text: m.getText()}; });
   }
 
   function chooseMotorcycle(item) {
@@ -91,7 +98,7 @@
     left: 101%;
   }
 
-  :global(List) {
+  :global(.motorcycle-custom-list) {
     columns: 4;
   }
 

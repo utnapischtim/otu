@@ -2,14 +2,14 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import * as geom from "geometric";
+  import * as mc from "motorcycleGraph";
   import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn, isShuffled } from "../store";
-  import { MotorcycleGraph } from "../Motorcycle";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
 
   let drawing = false, basePoint;
-  let points = [], g;
+  let d3Points = [], g;
   let svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
   let isLabelOn = false;
   const dragger = d3.drag().on("drag", handleDrag);
@@ -45,51 +45,33 @@
   }
 
   $: if ($addedToCustomList) {
-    let localCustomList = [];
-
-    for (const motorcycle of motorcycles) {
-      motorcycle.reset();
-      motorcycle.resetReductionCounter();
-    }
-
-    for (const customEntry of motorcyclesCustomList) {
-      for (const motorcycle of motorcycles) {
-        motorcycle.reset();
-      }
-
-      customEntry.isUsed = true;
-      localCustomList.push(customEntry);
-      middleLayerDrawMotorcycleGraph(localCustomList, $polygonActive);
-      drawMotorcycles(motorcycles);
-    }
+    const localCustomList = applyCustomList();
 
     motorcyclesCustomList = localCustomList;
     $addedToCustomList = false;
   }
 
   $: if ($removedFromCustomList) {
-    let localCustomList = [];
-
-    for (const motorcycle of motorcycles) {
-      motorcycle.reset();
-    }
-
-    for (const customEntry of motorcyclesCustomList) {
-      for (const motorcycle of motorcycles) {
-        motorcycle.reset();
-      }
-
-      customEntry.isUsed = true;
-      localCustomList.push(customEntry);
-      middleLayerDrawMotorcycleGraph(localCustomList, $polygonActive);
-      drawMotorcycles(motorcycles);
-    }
+    const localCustomList = applyCustomList();
 
     motorcyclesCustomList = localCustomList;
     $removedFromCustomList = false;
   }
 
   $: if ($isShuffled) {
+    const localCustomList = applyCustomList();
+
+    setTimeout(() => {
+      motorcyclesCustomList = localCustomList;
+    }, 50);
+    $isShuffled = false;
+  }
+
+  $: {
+    svg.selectAll("text").classed("label-visible", $labelOn);
+  }
+
+  function applyCustomList() {
     let localCustomList = [];
 
     for (const motorcycle of motorcycles) {
@@ -108,15 +90,11 @@
       drawMotorcycles(motorcycles);
     }
 
-    motorcyclesCustomList = localCustomList;
-  }
-
-  $: {
-    svg.selectAll("text").classed("label-visible", $labelOn);
+    return localCustomList;
   }
 
   function resetAll() {
-    points = [];
+    d3Points = [];
     motorcycles = [];
     motorcyclesCustomList = [];
     svg.selectAll("g").remove();
@@ -189,18 +167,18 @@
       return;
 
     const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
-          pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o)),
-          motorcycleGraph = new MotorcycleGraph(pointsForMotorcycleGraph, positionInfo);
+          pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o));
 
-    motorcycleGraph.calculateMotorcycleSegments();
-    motorcycles = motorcycleGraph.getMotorcycleSegments();
+    motorcycles = mc.calculateMotorcycles(pointsForMotorcycleGraph, positionInfo.width, positionInfo.height);
     drawMotorcycles(motorcycles);
   }
 
-  function middleLayerDrawMotorcycleGraph(segments, points) {
-    if (document.querySelector(".polygon") != null && segments.length > 0) {
-      drawMotorcycleGraph(segments, points);
-    }
+  function middleLayerDrawMotorcycleGraph(customMotorcycles) {
+    if (document.querySelector(".polygon") == null || customMotorcycles.length == 0)
+      return
+
+    const motorcycleGraph = mc.calculateMotorcycleGraph(customMotorcycles);
+    drawMotorcycleGraph(motorcycleGraph);
   }
 
   function createG(className) {
@@ -215,19 +193,10 @@
     return g;
   }
 
-  function drawMotorcycleGraph(motorcyclesCustom, points) {
-    const positionInfo = document.querySelector(".polygon").getBoundingClientRect(),
-          pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o)),
-          motorcycleGraph = new MotorcycleGraph(pointsForMotorcycleGraph, positionInfo);
-
-    motorcycleGraph.calculateMotorcycleGraph(motorcyclesCustom);
-
-    const  segments = motorcycleGraph.getSegments();
-
+  function drawMotorcycleGraph(segments) {
     const gBisector = createG("bisector");
     for (const segment of segments)
       appendLine(gBisector, segment.s.toArray(), segment.t.toArray(), "solid", "#53DBF3", segment.getText());
-
   }
 
   function drawMotorcycles(motorcycles) {
@@ -255,10 +224,10 @@
       return;
     }
 
-    points.push(basePoint);
+    d3Points.push(basePoint);
 
-    if (points.length > 3) {
-      checkIntersections(points);
+    if (d3Points.length > 3) {
+      checkIntersections(d3Points);
     }
 
     // if (points.length > 2) {
@@ -267,9 +236,9 @@
 
     g.select("polyline").remove();
 
-    appendPolyline(g, points);
+    appendPolyline(g, d3Points);
 
-    for (let point of points)
+    for (let point of d3Points)
       appendCircle(g, point);
 
   }
@@ -333,12 +302,12 @@
   function closePolygon() {
     svg.select("g.drawPoly").remove();
 
-    polygonActive.set(points);
+    polygonActive.set(d3Points);
 
-    drawPolygon(points);
-    middleLayerDrawMotorcycles(points);
+    drawPolygon(d3Points);
+    middleLayerDrawMotorcycles(d3Points);
 
-    points = [];
+    d3Points = [];
     drawing = false;
   }
 
