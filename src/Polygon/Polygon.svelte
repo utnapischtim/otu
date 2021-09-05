@@ -360,7 +360,7 @@
       .attr("x2", endPoint[0] + 2)
       .attr("y2", endPoint[1])
       .attr("stroke", color)
-      .attr("stroke-width", 1);
+      .attr("stroke-width", 3);
 
     if (isDashed === "dash")
       line.attr("stroke-dasharray", 10);
