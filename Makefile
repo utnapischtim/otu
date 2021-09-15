@@ -27,3 +27,15 @@ public/build: node_modules $(shell find src) $(shell find public -not \( -path p
 	@npm run --silent build
 	@npm run --silent css:purge
 	@touch -c $@
+
+dockerize:
+	docker build -f Dockerfile . -t christoph/otu
+
+save-docker:
+	docker save christoph/otu | gzip > tmp/otu-${/bin/date +%Y-%m-%d}.tar.gz
+
+load-docker:
+	docker load -i tmp/otu.tar.gz
+
+run-docker:
+	docker run -p 49160:8080 -d christoph/otu
