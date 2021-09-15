@@ -25,6 +25,7 @@
     "babel-jest": "^26.6.3",
     "d3": "^6.6.2",
     "geometric": "file:../github/utnapischtim/geometric",
+    "motorcycleGraph": "file:../motorcycleGraph",
     "jest": "^26.6.3",
     "postcss": "^8.2.9",
     "postcss-load-config": "^3.0.1",
