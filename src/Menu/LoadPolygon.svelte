@@ -41,11 +41,8 @@
     }
 
     if (maxWidth < width || maxHeight < height) {
-      let scaleHeight = 0;
-      while ((++scaleHeight * (xMin+xMax) + 2*margin) < height){}
-
-      let scaleWidth = 0;
-      while ((++scaleWidth * (yMin+yMax) + 2*margin) < width){}
+      const scaleWidth = (width - 2*margin) / xMax;
+      const scaleHeight = (height - 2*margin) / yMax;
 
       const scale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
 
