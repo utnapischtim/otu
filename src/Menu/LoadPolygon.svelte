@@ -23,9 +23,6 @@
     const width = svg.clientWidth;
     const height = svg.clientHeight;
 
-    if (xMin > 0 && xMax < width && yMin > 0 && yMax < height)
-      return polygon;
-
     // plus margin does the leftmost are not on the border, so they have a padding of 10
     const margin = 100;
     const maxWidth = xMin + xMax + 2*margin;
