@@ -91,11 +91,12 @@
 
 <style>
   .polygon-menu {
-    position: relative;
-    top: -79%;
     border: 1px solid black;
+    float: right;
+    position: absolute;
+    right: 25px;
+    top: 250px;
     width: 255px;
-    left: 101%;
   }
 
   :global(.motorcycle-custom-list) {

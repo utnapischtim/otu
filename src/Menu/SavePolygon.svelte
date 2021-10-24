@@ -11,9 +11,9 @@
   $: polygon = polygonActive.map(p => { return {x: p[0], y: p[1]}; });
 
   function handleClick(event) {
-    console.log("Save Button handle click");
     const output = {polygon};
     const file = new Blob([JSON.stringify(output)], {type: "application/json"});
+
     saveAs(file, "out.json");
   }
 </script>

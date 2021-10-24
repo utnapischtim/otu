@@ -4,10 +4,8 @@
 
 <style>
   #polygon-list {
-    border: 1px solid black;
-    width: 84%;
-    height: 100%;
-    float: left;
+    border-top: 1px solid black;
+    height: 93%;
   }
 
 </style>

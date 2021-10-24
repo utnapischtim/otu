@@ -3,6 +3,5 @@
   import Menu from "./Menu";
 </Script>
 
-<PolygonList />
 <Menu />
-
+<PolygonList />

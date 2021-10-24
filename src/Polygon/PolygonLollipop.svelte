@@ -119,8 +119,8 @@
   .lollipop {
     border: 1px solid black;
     position: absolute;
-    right: 320px;
-    top: 15px;
+    right: 25px;
+    top: 75px;
   }
 
   :global(.axis-label) {

@@ -9,16 +9,14 @@
 
 <style>
   .menu {
-    float: right;
     padding: 10px;
-    width: 16%;
   }
 </style>
 
 <div class="menu">
   <!-- <SelectEngine bind:engines={$engines} /> -->
   <SavePolygon bind:polygonActive={$polygonActive} />
-  <LoadPolygon polygons />
   <Reset />
+  <LoadPolygon polygons />
   <Errors />
 </div>

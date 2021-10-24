@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { Button, Dialog } from 'smelte';
   import { polygonActive, load } from "../store";
 
   export let polygons;
+  let showDialog = false;
 
   function changeFile(node) {
     node.addEventListener("change", readFile);
@@ -59,15 +61,23 @@
   function readFile(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
+
     reader.onload = (e) => {
       const obj = JSON.parse(e.target.result);
       const polygon = scale(obj.polygon.map(p => [p.x, p.y]));
       polygonActive.set(polygon);
       load.set(true);
     };
+
     reader.readAsText(file);
+
+    showDialog = false;
   }
 </script>
 
-<input type="file" use:changeFile>
+<Dialog bind:value={showDialog}>
+  <h2>Choose a File</h2>
+  <input type="file" use:changeFile>
+</Dialog>
 
+<Button color="red" on:click={() => showDialog = true}>Load</Button>
