@@ -6,10 +6,12 @@
   export let motorcyclesCustomList = [];
 
   let motorcyclesOut = [];
-  let motorcyclesOutSelectable = [];
   let items = [];
 
   let inUseNodeNames = {};
+
+  let isHistory = true;
+  let isSort = false;
 
   $: if ($alterMotorcycle) {
     let nodeName = $alterMotorcycle;
@@ -28,12 +30,15 @@
       .filter(m => !m.isUsed)
       .map((m) => { return {value: m.getText(), text: m.getText()}; });
 
-    motorcyclesOut = motorcyclesCustomList
-      .sort((a, b) => b.reductionCounter - a.reductionCounter)
-      .map((m) => { return {text: m.getText()}; })
+    if (isHistory) {
+      motorcyclesOut = [...motorcyclesCustomList].map((m) => ({text: m.getText()}));
+    }
 
-    motorcyclesOutSelectable = motorcyclesCustomList
-      .map((m) => { return {value: m.getText(), text: m.getText()}; });
+    if (isSort) {
+      motorcyclesOut = [...motorcyclesCustomList]
+        .sort((a, b) => b.reductionCounter - a.reductionCounter)
+        .map((m) => { return {text: m.getText()}; });
+    }
   }
 
   function chooseMotorcycle(item) {
@@ -51,7 +56,8 @@
   }
 
   function removeMotorcycle(item) {
-    const nodeName = item.detail.split(" ")[0];
+    const nodeName = item.target.dataset.name.split(" ")[0];
+
     for (const motorcycle of motorcyclesCustomList) {
       if (motorcycle.getNodeName() == nodeName) {
         motorcycle.isUsed = false;
@@ -87,28 +93,44 @@
   function switchLabel() {
     $labelOn = !$labelOn;
   }
+
+  function history() {
+    isHistory = true;
+    isSort = false;
+  }
+
+  function sort() {
+    isHistory = false;
+    isSort = true;
+  }
 </script>
 
 <style>
   .polygon-menu {
     border: 1px solid black;
     float: right;
+    padding: 10px;
     position: absolute;
     right: 25px;
     top: 250px;
-    width: 255px;
+    width: 302px;
   }
 
   :global(.motorcycle-custom-list) {
     columns: 4;
+    height: 200px;
+    overflow-y: auto;
+    padding: 10px 0px;
   }
 
   .motorcycle-custom-list-item {
     content: ',';
+    cursor: pointer;
   }
 
   h3 {
     border-top: 1px solid black;
+    padding: 10px 0px;
   }
 </style>
 
@@ -117,14 +139,18 @@
   <Button color="red" on:click={handleClickReset}>reset</Button>
   <Button color="red" on:click={shuffle}>shuffle</Button>
   <Checkbox checked label="Label on/off" on:change={switchLabel}/>
+
   <h3>Add motorcycle to custom list</h3>
   <Select {items} on:change={chooseMotorcycle} />
-  <h3>History of added motorcycle's</h3>
+
+  <h3>
+    <Button color="secondary" light outlined on:click={history}>history</Button>
+    <Button color="secondary" light outlined on:click={sort}>sort</Button>
+  </h3>
   <List items={motorcyclesOut} classes="motorcycle-custom-list">
-    <li slot="item" let:item={item} class="motorcycle-custom-list-item">
+    <li slot="item" let:item={item} class="motorcycle-custom-list-item" data-name={item.text} on:click={removeMotorcycle}>
       {item.text}
     </li>
   </List>
-  <h3>Remove motorcycle to custom list</h3>
-  <Select items={motorcyclesOutSelectable} on:change={removeMotorcycle} />
+
 </div>
