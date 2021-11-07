@@ -12,10 +12,35 @@
   let d3Points = [], g;
   let svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
   let isLabelOn = false;
+  let zoomEvent, scaleFactor = 1;
+
   const dragger = d3.drag().on("drag", handleDrag);
+
+  const zoom = d3.zoom()
+      .scaleExtent([1, 8])
+      .on('zoom', function(event) {
+        zoomEvent = event;
+        scaleFactor = event.transform.k;
+
+        d3.selectAll(".polygon g")
+          .selectAll('polygon, circle, text, line')
+          .attr('transform', event.transform);
+
+        d3.selectAll(".polygon circle")
+          .attr("r", radius(4))
+          .attr("stroke-width", strokeWidth(1, false));
+
+        d3.selectAll(".polygon text")
+          .style("font-size", fontSize(15));
+
+        d3.selectAll(".polygon line")
+          .attr("stroke-width", strokeWidth(3))
+          .attr("stroke-dasharray", strokeDasharray(10));
+      });
 
   onMount(() => {
     svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
+    svg.call(zoom);
     svg.on("click", actOnClick);
     svg.on("mousemove", actOnMousemove);
   });
@@ -94,6 +119,8 @@
   }
 
   function resetAll() {
+    scaleFactor = 1;
+    zoomEvent = undefined;
     d3Points = [];
     motorcycles = [];
     motorcyclesCustomList = [];
@@ -197,6 +224,9 @@
     const gBisector = createG("bisector");
     for (const segment of segments)
       appendLine(gBisector, segment.s.toArray(), segment.t.toArray(), "solid", "#53DBF3", segment.getText());
+
+    if (zoomEvent)
+      gBisector.selectAll("line, text").attr('transform', zoomEvent.transform);
   }
 
   function drawMotorcycles(motorcycles) {
@@ -204,6 +234,9 @@
     for (const segment of motorcycles)
       if (!segment.isUsed)
         appendLine(gFull, segment.s.toArray(), segment.t.toArray(), "dash", "#FF5733", segment.getText());
+
+    if (zoomEvent)
+      gFull.selectAll("polygon, circle, line, text").attr('transform', zoomEvent.transform);
   }
 
   function actOnClick(event) {
@@ -322,6 +355,21 @@
     return color;
   }
 
+  function radius(r) {
+    return Math.ceil(4 / scaleFactor);
+  }
+
+  function strokeWidth(w, isCeil=false) {
+    return isCeil ? Math.ceil(w / scaleFactor) : w / scaleFactor;
+  }
+
+  function strokeDasharray(a) {
+    return Math.ceil(a / scaleFactor);
+  }
+
+  function fontSize(fs) {
+    return `${fs / scaleFactor}px`;
+  }
 
   function appendCircle(g, point, option={movable: false, }) {
     const cursor = option.movable ? "move" : "pointer";
@@ -329,9 +377,10 @@
     const circle = g.append("circle")
         .attr("cx", point[0])
         .attr("cy", point[1])
-        .attr("r", 4)
+        .attr("r", radius(4))
         .attr("fill", "yellow")
         .attr("stroke", "#000")
+        .attr("stroke-width", strokeWidth(1, false))
         .attr("is-handle", "true")
         .style("cursor", cursor);
 
@@ -360,19 +409,21 @@
       .attr("x2", endPoint[0] + 2)
       .attr("y2", endPoint[1])
       .attr("stroke", color)
-      .attr("stroke-width", 3);
+      .attr("stroke-width", strokeWidth(3));
 
     if (isDashed === "dash")
-      line.attr("stroke-dasharray", 10);
+      line.attr("stroke-dasharray", strokeDasharray(10));
 
     if (text !== "") {
-      g.append("text")
+      const gText = g.append("text")
         .attr("x", startPoint[0])
         .attr("y", startPoint[1])
         .attr("class", "label-unvisible")
         .classed("label-visible", $labelOn)
-        .text(text)
-        .on("click", (e) => alterMotorcycle.set(text));
+        .text(text);
+
+      gText.on("click", (e) => alterMotorcycle.set(text));
+      gText.style("font-size", fontSize(15))
 
       line
         .attr("style", "cursor: pointer")
