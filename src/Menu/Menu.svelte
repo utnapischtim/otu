@@ -2,6 +2,7 @@
   import SelectEngine from "./SelectEngine.svelte";
   import SavePolygon from "./SavePolygon.svelte";
   import LoadPolygon from "./LoadPolygon.svelte";
+  import ExportAs from "./ExportAs.svelte";
   import Errors from "./Errors.svelte";
   import Reset from "./Reset.svelte";
   import { engines, polygons, polygonActive } from "../store";
@@ -18,5 +19,6 @@
   <SavePolygon bind:polygonActive={$polygonActive} />
   <Reset />
   <LoadPolygon polygons />
+  <ExportAs polygons />
   <Errors />
 </div>
