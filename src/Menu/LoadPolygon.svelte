@@ -2,7 +2,7 @@
   import { Button, Dialog } from 'smelte';
   import { polygonActive, load } from "../store";
 
-  export let polygons;
+  export let filename;
   let showDialog = false;
 
   function changeFile(node) {
@@ -72,6 +72,7 @@
     reader.readAsText(file);
 
     showDialog = false;
+    filename = file.name;
   }
 </script>
 

@@ -6,11 +6,24 @@
   import Errors from "./Errors.svelte";
   import Reset from "./Reset.svelte";
   import { engines, polygons, polygonActive } from "../store";
+
+  let filename = "";
 </script>
 
 <style>
   .menu {
     padding: 10px;
+  }
+
+  hr {
+    border: 1px solid #ccc8c8;
+    display: inline;
+    margin: 0px 10px;
+    transform: rotate(90deg);
+  }
+
+  .filename {
+    color: #a8a2a2;
   }
 </style>
 
@@ -18,7 +31,11 @@
   <!-- <SelectEngine bind:engines={$engines} /> -->
   <SavePolygon bind:polygonActive={$polygonActive} />
   <Reset />
-  <LoadPolygon polygons />
-  <ExportAs polygons />
+  <LoadPolygon bind:filename={filename} />
+  <ExportAs />
   <Errors />
+
+  <hr />
+
+  <span class="filename">Filename: {filename}</span>
 </div>
