@@ -90,6 +90,29 @@
     $isShuffled = true;
   }
 
+  function sortByFast() {
+    motorcyclesCustomList = motorcycles
+      .map((v) => ({v, sort: v.velocity}))
+      .sort((a, b) => b.sort - a.sort)
+      .map(({v}) => v);
+
+    motorcyclesCustomList.forEach(v => v.isUsed = true);
+
+    $isShuffled = true;
+  }
+
+  function sortBySlow() {
+    motorcyclesCustomList = motorcycles
+      .map((v) => ({v, sort: v.velocity}))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({v}) => v);
+
+    motorcyclesCustomList.forEach(v => v.isUsed = true);
+
+    $isShuffled = true;
+
+  }
+
   function switchLabel() {
     $labelOn = !$labelOn;
   }
@@ -128,20 +151,37 @@
     cursor: pointer;
   }
 
-  h3 {
-    border-top: 1px solid black;
-    padding: 10px 0px;
+  hr {
+    border-top: 1px solid #ccc8c8;
+    margin: 10px 0;
+  }
+
+  :global(.choose-motorcycle ul) {
+    height: 300px;
+    overflow-y: scroll;
   }
 </style>
 
 <div class="polygon-menu">
   <!-- <Button color="red">clone</Button> -->
   <Button color="red" on:click={handleClickReset}>reset</Button>
+
+  <hr/>
+
   <Button color="red" on:click={shuffle}>shuffle</Button>
+  <Button color="red" on:click={sortByFast}>fastest</Button>
+  <Button color="red" on:click={sortBySlow}>slowest</Button>
+
+  <hr/>
+
   <Checkbox checked label="Label on/off" on:change={switchLabel}/>
 
+  <hr/>
+
   <h3>Add motorcycle to custom list</h3>
-  <Select {items} on:change={chooseMotorcycle} />
+  <Select {items} class="choose-motorcycle" on:change={chooseMotorcycle} />
+
+  <hr/>
 
   <h3>
     <Button color="secondary" light outlined on:click={history}>history</Button>
