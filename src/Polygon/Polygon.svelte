@@ -17,7 +17,7 @@
   const dragger = d3.drag().on("drag", handleDrag);
 
   const zoom = d3.zoom()
-      .scaleExtent([1, 8])
+      .scaleExtent([0.1, 8])
       .on('zoom', function(event) {
         zoomEvent = event;
         scaleFactor = event.transform.k;
