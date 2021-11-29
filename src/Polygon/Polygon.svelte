@@ -19,6 +19,10 @@
   const zoom = d3.zoom()
       .scaleExtent([0.1, 8])
       .on('zoom', function(event) {
+        if (drawing) {
+          return;
+        }
+
         zoomEvent = event;
         scaleFactor = event.transform.k;
 
