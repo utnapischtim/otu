@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Select, List, Switch, Checkbox } from "smelte";
-  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn, isShuffled } from "../store";
+  import { resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelReflexNodeOn, labelIntersectionOn, isShuffled } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -113,8 +113,12 @@
 
   }
 
-  function switchLabel() {
-    $labelOn = !$labelOn;
+  function switchReflexNodeLabel() {
+    $labelReflexNodeOn = !$labelReflexNodeOn;
+  }
+
+  function switchIntersectionLabel() {
+    $labelIntersectionOn = !$labelIntersectionOn;
   }
 
   function history() {
@@ -174,7 +178,8 @@
 
   <hr/>
 
-  <Checkbox checked label="Label on/off" on:change={switchLabel}/>
+  <Checkbox checked label="Reflex Node Label on/off" on:change={switchReflexNodeLabel}/>
+  <Checkbox unchecked label="Intersection Label on/off" on:change={switchIntersectionLabel}/>
 
   <hr/>
 

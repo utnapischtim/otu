@@ -3,7 +3,7 @@
   import * as d3 from "d3";
   import * as geom from "geometric";
   import * as mc from "motorcycleGraph";
-  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelOn, isShuffled } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelReflexNodeOn, labelIntersectionOn, isShuffled } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -12,9 +12,11 @@
   let d3Points = [], g;
   let svg = d3.select("svg"); // double assignment necessary to make $: if ($reset) possible
   let isLabelOn = false;
+  let isWinMotorcycleVisible = false;
   let zoomEvent, scaleFactor = 1;
 
   const dragger = d3.drag().on("drag", handleDrag);
+  const draggerText = d3.drag().on("drag", handleDragText);
 
   const zoom = d3.zoom()
       .scaleExtent([0.1, 8])
@@ -60,6 +62,10 @@
     drawPolygon($polygonActive);
     middleLayerDrawMotorcycles($polygonActive);
     load.set(false);
+
+    if ($labelIntersectionOn) {
+      calculateIntersections($polygonActive);
+    }
   }
 
   $: if ($resetMotorcycles) {
@@ -96,8 +102,55 @@
     $isShuffled = false;
   }
 
+  $: if ($labelIntersectionOn) {
+    calculateIntersections($polygonActive);
+  }
+
   $: {
-    svg.selectAll("text").classed("label-visible", $labelOn);
+    svg.selectAll("g.full text").classed("label-reflex-node-visible", $labelReflexNodeOn);
+    svg.selectAll("g.intersection text").classed("label-intersection-visible", $labelIntersectionOn);
+  }
+
+  function calculateIntersections(points) {
+    const [width, height] = getWidthHeight();
+    const pointsForMotorcycleGraph = points.map(o => geom.Point.fromArray(o));
+    const motorcycles = mc.calculateMotorcycles(pointsForMotorcycleGraph, width, height);
+    const intersectionCache = mc.calculateIntersectionCache(motorcycles);
+
+    const intersections = [];
+    for (const [key, inter] of Object.entries(intersectionCache)) {
+      const localPointA = {
+        x: inter.pointA.x,
+        y: inter.pointA.y,
+        time: inter.pointA.time,
+        win: inter.pointA.winMotorcycle.text,
+        lost: inter.pointA.lostMotorcycle.text
+      };
+      const localPointB = {
+        x: inter.pointB.x,
+        y: inter.pointB.y,
+        time: inter.pointB.time,
+        win: inter.pointB.winMotorcycle.text,
+        lost: inter.pointB.lostMotorcycle.text
+      };
+
+      if (inter.pointA.time < inter.pointB.time) {
+        intersections.push(Object.assign(localPointA, {x: localPointA.x-20, y: localPointA.y-20}));
+        intersections.push(Object.assign(localPointB, {x: localPointB.x+20, y: localPointB.y+20}));
+      } else {
+        intersections.push(Object.assign(localPointB, {x: localPointB.x-20, y: localPointB.y-20}));
+        intersections.push(Object.assign(localPointA, {x: localPointA.x+20, y: localPointA.y+20}));
+      }
+    }
+
+    intersections.sort((a,b) => a.time - b.time);
+
+    console.log(intersectionCache);
+
+    const g = createG("intersections");
+    for (let i = 0; i < intersections.length; i+=1) {
+      appendText(g, intersections[i], i, {movable: true});
+    }
   }
 
   function applyCustomList() {
@@ -322,6 +375,19 @@
     polygonActive.set(newPoints);
 
     middleLayerDrawMotorcycles(newPoints);
+
+    if ($labelIntersectionOn) {
+      calculateIntersections(newPoints);
+    }
+  }
+
+  function handleDragText(event) {
+    if (drawing)
+      return;
+
+    let dragText = d3.select(this);
+
+    dragText.attr("x", event.x).attr("y", event.y);
   }
 
   function drawPolygon(points) {
@@ -343,6 +409,10 @@
 
     drawPolygon(d3Points);
     middleLayerDrawMotorcycles(d3Points);
+
+    if ($labelIntersectionOn) {
+      calculateIntersections(d3Points);
+    }
 
     d3Points = [];
     drawing = false;
@@ -375,6 +445,25 @@
     return `${fs / scaleFactor}px`;
   }
 
+  function showWinningMotorcycle(event) {
+    const winLine = d3.selectAll(`g.full line[data-reflex-node='${event.target.dataset.winMotorcycle}']`);
+    const color = getRandomColor();
+
+    Object.assign(event.target.style, {
+      "fill": "white",
+      "paint-order": "stroke",
+      "stroke": color,
+      "stroke-width": "3px",
+      "stroke-linecap": "butt",
+      "stroke-linejoin": "miter"
+    });
+
+    isWinMotorcycleVisible = !isWinMotorcycleVisible;
+    winLine.classed("winning-motorcycle-visible", isWinMotorcycleVisible);
+    winLine.attr("data-win-motorcycle", "w");
+    winLine.style("stroke", color);
+  }
+
   function appendCircle(g, point, option={movable: false, }) {
     const cursor = option.movable ? "move" : "pointer";
 
@@ -390,6 +479,24 @@
 
     if (option.movable)
       circle.call(dragger);
+  }
+
+  function appendText(g, point, text, option={movable: false, }) {
+    const cursor = option.movable ? "move" : "pointer";
+    const gText = g.append("text")
+      .attr("x", point.x)
+      .attr("y", point.y)
+      .attr("data-win-motorcycle", point.win)
+      .attr("class", "label-intersection-unvisible")
+      .classed("label-intersection-visible", $labelIntersectionOn)
+      .text(text);
+
+    gText.style("cursor", cursor);
+
+    if (option.movable)
+      gText.call(draggerText);
+
+    gText.on("click", showWinningMotorcycle);
   }
 
   function appendPolyline(g, points) {
@@ -412,6 +519,9 @@
       .attr("y1", startPoint[1])
       .attr("x2", endPoint[0] + 2)
       .attr("y2", endPoint[1])
+      .attr("data-win-motorcycle", "")
+      .attr("data-reflex-node", text.split(" ")[0])
+      .attr("class", "line-win-motorcycle")
       .attr("stroke", color)
       .attr("stroke-width", strokeWidth(3));
 
@@ -422,12 +532,13 @@
       const gText = g.append("text")
         .attr("x", startPoint[0])
         .attr("y", startPoint[1])
-        .attr("class", "label-unvisible")
-        .classed("label-visible", $labelOn)
+        .attr("class", "label-reflex-node-unvisible")
+        .classed("label-reflex-node-visible", $labelReflexNodeOn)
         .text(text);
 
       gText.on("click", (e) => alterMotorcycle.set(text));
       gText.style("font-size", fontSize(15))
+      gText.call(draggerText)
 
       line
         .attr("style", "cursor: pointer")
@@ -443,14 +554,36 @@
     width: 100%;
   }
 
-  :global(.label-unvisible) {
+  :global(.label-intersection-unvisible) {
     display: none;
   }
 
-  :global(.label-visible) {
+  :global(.label-intersection-visible) {
     display: block !important;
     cursor: pointer;
     font: italic 15px sans-serif
+  }
+
+  :global(.label-reflex-node-unvisible) {
+    display: none;
+  }
+
+  :global(.label-reflex-node-visible) {
+    display: block !important;
+    cursor: pointer;
+    font: italic 15px sans-serif
+  }
+
+  :global(.winning-motorcycle-unvisible) {
+    display: none;
+  }
+
+  :global(.winning-motorcycle-visible) {
+    stroke: blue;
+  }
+
+  :global(.line-win-motorcycle:after) {
+    content: attr(data-win-motorcycle);
   }
 </style>
 

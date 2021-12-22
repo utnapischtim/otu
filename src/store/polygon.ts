@@ -1,14 +1,14 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 //import type * as geom from "geometric";
 
 function createPolygonStore() {
-  const { subscribe, set/*, update*/ } = writable([]);
+  const { subscribe, set /*, update*/ } = writable([]);
 
   return {
     subscribe,
-    set// ,
+    set, // ,
     // add: (polygon) => update(list => [...list, polygon])
-  }
+  };
 }
 
 export const polygons = createPolygonStore();
@@ -21,6 +21,8 @@ export const removedFromCustomList = writable(false);
 
 export const alterMotorcycle = writable("");
 
-export const labelOn = writable(true);
+export const labelReflexNodeOn = writable(true);
+
+export const labelIntersectionOn = writable(false);
 
 export const isShuffled = writable(false);
