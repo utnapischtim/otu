@@ -3,7 +3,7 @@
   import * as d3 from "d3";
   import * as geom from "geometric";
   import * as mc from "motorcycleGraph";
-  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelReflexNodeOn, labelIntersectionOn, isShuffled } from "../store";
+  import { polygonActive, errors, reset, load, resetMotorcycles, addedToCustomList, removedFromCustomList, alterMotorcycle, labelReflexNodeOn, labelIntersectionOn, raysOn, vertexOn, isShuffled } from "../store";
 
   export let motorcycles = [];
   export let motorcyclesCustomList = [];
@@ -109,6 +109,8 @@
   $: {
     svg.selectAll("g.full text").classed("label-reflex-node-visible", $labelReflexNodeOn);
     svg.selectAll("g.intersection text").classed("label-intersection-visible", $labelIntersectionOn);
+    svg.selectAll("g.full line").classed("rays-visible", $raysOn);
+    svg.selectAll("g.activePolygon circle").classed("vertex-visible", $vertexOn);
   }
 
   function calculateIntersections(points) {
@@ -475,6 +477,8 @@
         .attr("stroke", "#000")
         .attr("stroke-width", strokeWidth(1, false))
         .attr("is-handle", "true")
+        .attr("class", "vertex-unvisible")
+        .classed("vertex-visible", $vertexOn)
         .style("cursor", cursor);
 
     if (option.movable)
@@ -521,9 +525,10 @@
       .attr("y2", endPoint[1])
       .attr("data-win-motorcycle", "")
       .attr("data-reflex-node", text.split(" ")[0])
-      .attr("class", "line-win-motorcycle")
+      .attr("class", "line-win-motorcycle rays-unvisible")
       .attr("stroke", color)
-      .attr("stroke-width", strokeWidth(3));
+      .attr("stroke-width", strokeWidth(3))
+      .classed("rays-visible", $raysOn);
 
     if (isDashed === "dash")
       line.attr("stroke-dasharray", strokeDasharray(10));
@@ -552,6 +557,22 @@
   .polygon {
     height: 100%;
     width: 100%;
+  }
+
+  :global(.vertex-unvisible) {
+    display: none;
+  }
+
+  :global(.vertex-visible) {
+    display: unset;
+  }
+
+  :global(.rays-unvisible) {
+    display: none;
+  }
+
+  :global(.rays-visible) {
+    display: unset;
   }
 
   :global(.label-intersection-unvisible) {

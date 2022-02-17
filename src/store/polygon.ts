@@ -25,4 +25,8 @@ export const labelReflexNodeOn = writable(true);
 
 export const labelIntersectionOn = writable(false);
 
+export const raysOn = writable(true);
+
+export const vertexOn = writable(true);
+
 export const isShuffled = writable(false);

@@ -7,6 +7,8 @@ export {
   alterMotorcycle,
   labelReflexNodeOn,
   labelIntersectionOn,
+  raysOn,
+  vertexOn,
   isShuffled,
 } from "./polygon";
 export { errors } from "./errors";
