@@ -120,7 +120,7 @@
     border: 1px solid black;
     position: absolute;
     right: 25px;
-    top: 75px;
+    top: 65px;
   }
 
   :global(.axis-label) {

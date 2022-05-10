@@ -514,7 +514,7 @@
     g.append("polygon")
       .attr("points", points)
       .attr("fill", "none")
-      .attr("stroke", getRandomColor());
+      .attr("stroke", "#000000");
   }
 
   function appendLine(g, startPoint, endPoint, isDashed="", color="#53DBF3", text="") {

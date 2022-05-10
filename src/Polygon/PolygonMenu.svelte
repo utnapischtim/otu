@@ -147,13 +147,13 @@
     padding: 10px;
     position: absolute;
     right: 25px;
-    top: 250px;
+    top: 225px;
     width: 302px;
   }
 
   :global(.motorcycle-custom-list) {
     columns: 4;
-    height: 200px;
+    height: 175px;
     overflow-y: auto;
     padding: 10px 0px;
   }
