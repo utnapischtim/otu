@@ -21,41 +21,27 @@
     const height = svg.clientHeight;
 
     const pxM = polygon.reduceRight((acc, cur) => acc[0] < cur[0] ? cur : acc, [0, 0]);
-    const px0 = polygon.reduceRight((acc, cur) => cur[0] < acc[0] ? cur : acc, pxM)
+    const px0 = polygon.reduceRight((acc, cur) => cur[0] < acc[0] ? cur : acc, pxM);
     const pyM = polygon.reduceRight((acc, cur) => acc[1] < cur[1] ? cur : acc, [0, 0]);
     const py0 = polygon.reduceRight((acc, cur) => cur[1] < acc[1] ? cur : acc, pyM);
 
-    // plus margin does the leftmost are not on the border, so they have a padding of 10
-    const margin = 10;
-    const maxWidth = px0[0] + pxM[0] + 2*margin;
-    const maxHeight = py0[0] + pyM[1] + 2*margin;
+    const rounded_px0_0 = Math.floor(px0[0]);
+    const rounded_py0_1 = Math.floor(py0[1]);
 
-    if (maxWidth > width || maxHeight > height) {
-      const scaleWidth = width / maxWidth;
-      const scaleHeight = height / maxHeight;
-      const scale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
-      const p0 = scaleWidth < scaleHeight ? pxMin : pyMin;
+    const x = pxM[0] - rounded_px0_0;
+    const y = pyM[1] - rounded_py0_1;
 
-      polygon = polygon.map(p => {
-        p[0] = (p[0] + p0[0] + margin) * scale;
-        p[1] = (p[1] + p0[1] + margin) * scale;
-        return p;
-      });
-    }
+    const scalex = width/x;
+    const scaley = height/y;
+    const scale = scalex < scaley ? scalex : scaley;
 
-    if (maxWidth < width || maxHeight < height) {
-      const scaleWidth = (width - 2*margin) / pxM[0];
-      const scaleHeight = (height - 2*margin) / pyM[1];
-      const scale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
+    const scaled_polygon = polygon.map((p) => {
+      p[0] = (p[0] - rounded_px0_0) * scale;
+      p[1] = (p[1] - rounded_py0_1) * scale;
+      return p;
+    });
 
-      polygon = polygon.map(p => {
-        p[0] = p[0] * scale;
-        p[1] = p[1] * scale;
-        return p;
-      });
-    }
-
-    return polygon;
+    return scaled_polygon;
   }
 
   function readFile(event) {
